@@ -1,16 +1,13 @@
-# personal_finance_tracker
+# Personal Finance Tracker App
 
-A personal finance tracking application built with Flutter.
+The Personal Finance Tracker app helps users manage their finances by tracking income, expenses, and savings goals. Users can categorize their transactions, view reports, and set budgets.
 
-## Getting Started
+## Key Features
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* User Authentication
+* Dashboard
+* Transaction Management
+* Budgeting
+* Reports
+* API Integration
+* State Management (BLoC)
