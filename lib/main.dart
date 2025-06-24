@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Import Firebase Auth
 import 'package:flutter_bloc/flutter_bloc.dart'; // Import flutter_bloc
+import 'package:google_sign_in/google_sign_in.dart'; // <<< NEW IMPORT FOR GOOGLE SIGN IN
 
 import 'package:personal_finance_tracker/firebase_options.dart';
 import 'package:personal_finance_tracker/SplashScreen.dart';
@@ -30,9 +31,12 @@ class MyAppWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Provide the AuthCubit to the entire application.
-    // The AuthCubit requires an instance of FirebaseAuth.
+    // The AuthCubit requires instances of FirebaseAuth and GoogleSignIn.
     return BlocProvider<AuthCubit>(
-      create: (context) => AuthCubit(firebase_auth.FirebaseAuth.instance)..checkAuthStatus(),
+      create: (context) => AuthCubit(
+        firebase_auth.FirebaseAuth.instance,
+        GoogleSignIn(), // <<< UPDATED: Pass GoogleSignIn instance here
+      )..checkAuthStatus(),
       child: const MyApp(),
     );
   }
