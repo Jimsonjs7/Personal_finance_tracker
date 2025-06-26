@@ -1,10 +1,8 @@
-// lib/LoginScreen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_finance_tracker/auth/auth_cubit.dart';
-import 'package:personal_finance_tracker/auth/auth_event.dart';
 import 'package:personal_finance_tracker/auth/auth_state.dart';
+import 'package:personal_finance_tracker/RegisterScreen.dart'; // Add this import
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -25,58 +24,74 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _handleAuthAction(Future<void> Function() action) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await action();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _onLogin() => _handleAuthAction(() =>
       context.read<AuthCubit>().login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
-      );
-    }
+      )
+  );
+
+  // Updated register navigation
+  void _navigateToRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+    );
   }
 
-  void _onRegister() {
-    if (_formKey.currentState!.validate()) {
-      context.read<AuthCubit>().register(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
-    }
-  }
+  void _onGoogleSignIn() => _handleAuthAction(() =>
+      context.read<AuthCubit>().signInWithGoogle()
+  );
 
-  // >>> NEW METHOD FOR GOOGLE SIGN-IN <<<
-  void _onGoogleSignIn() {
-    context.read<AuthCubit>().signInWithGoogle();
+  Widget _buildAuthButton({
+    required VoidCallback onPressed,
+    required Widget child,
+    bool isPrimary = true,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: isPrimary
+          ? ElevatedButton(
+        onPressed: _isLoading ? null : onPressed,
+        child: child,
+      )
+          : OutlinedButton(
+        onPressed: _isLoading ? null : onPressed,
+        child: child,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login / Register'),
-      ),
+      appBar: AppBar(title: const Text('Login / Register')),
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
-          if (state is AuthLoading) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(content: Text('Processing...')),
-              );
-          } else if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Welcome, ${state.user.email}!')),
-            );
-            print("Logged in successfully. User ID: ${state.user.uid}");
-            // TODO: Navigate to the home screen (create this route later)
-            // Example: Navigator.of(context).pushReplacementNamed('/home');
+          if (state is AuthSuccess) {
+            Navigator.of(context).pushReplacementNamed('/home');
           } else if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Authentication Failed: ${state.error}')),
+              SnackBar(content: Text('Error: ${state.error}')),
             );
-          } else if (state is AuthUnauthenticated) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
           }
         },
         child: Padding(
@@ -92,16 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value!.isEmpty
+                      ? 'Email is required'
+                      : !value.contains('@')
+                      ? 'Invalid email format'
+                      : null,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
@@ -111,53 +121,45 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
+                  validator: (value) => value!.isEmpty
+                      ? 'Password is required'
+                      : value.length < 6
+                      ? 'Minimum 6 characters'
+                      : null,
                 ),
                 const SizedBox(height: 30),
-                ElevatedButton(
+                _buildAuthButton(
                   onPressed: _onLogin,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: const Text('Login'),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Login'),
                 ),
                 const SizedBox(height: 15),
-                OutlinedButton(
-                  onPressed: _onRegister,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
+                // Updated register button to use navigation
+                _buildAuthButton(
+                  onPressed: _navigateToRegister,
                   child: const Text('Register'),
+                  isPrimary: false,
                 ),
-                const SizedBox(height: 30), // Space before Google button
+                const SizedBox(height: 30),
                 const Text('Or sign in with:', style: TextStyle(fontSize: 16)),
                 const SizedBox(height: 15),
-                // >>> NEW GOOGLE SIGN-IN BUTTON <<<
-                ElevatedButton.icon(
+                _buildAuthButton(
                   onPressed: _onGoogleSignIn,
-                  icon: Image.asset(
-                    'assets/images/google_logo.png', // Make sure this path is correct
-                    height: 24.0, // Adjust size as needed
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/images/google_logo.png',
+                        height: 24,
+                        errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.account_circle),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Sign in with Google'),
+                    ],
                   ),
-                  label: const Text('Sign in with Google'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black87,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: const BorderSide(color: Colors.grey),
-                    ),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
+                  isPrimary: false,
                 ),
               ],
             ),
