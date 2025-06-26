@@ -7,8 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart'; // Import flutter_bloc
 import 'package:google_sign_in/google_sign_in.dart'; // <<< NEW IMPORT FOR GOOGLE SIGN IN
 
 import 'package:personal_finance_tracker/firebase_options.dart';
-import 'package:personal_finance_tracker/SplashScreen.dart';
-import 'package:personal_finance_tracker/LoginScreen.dart';
+import 'package:personal_finance_tracker/Splashscreen.dart';
+import 'package:personal_finance_tracker/Loginscreen.dart';
+
 
 // Import your Auth Cubit
 import 'package:personal_finance_tracker/auth/auth_cubit.dart';

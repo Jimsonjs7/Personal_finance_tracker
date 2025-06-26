@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:personal_finance_tracker/auth/auth_cubit.dart';
 import 'package:personal_finance_tracker/auth/auth_state.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -26,7 +28,8 @@ class HomeScreen extends StatelessWidget {
           } else if (state is AuthUnauthenticated) {
             return _buildUnauthenticatedView(context);
           } else if (state is AuthFailure) {
-            return _buildErrorView(state.error);
+            return _buildErrorView(context, state.error); //
+
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -136,7 +139,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorView(String error) {
+  Widget _buildErrorView(BuildContext context, String error) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -147,8 +150,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              // Try to recover by checking auth status again
-              context.read<AuthCubit>().checkAuthStatus();
+              context.read<AuthCubit>().checkAuthStatus(); // ✅ Now works
             },
             child: const Text('Retry'),
           ),
@@ -156,4 +158,5 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
 }
