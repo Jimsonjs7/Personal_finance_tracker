@@ -1,69 +1,106 @@
-// lib/main.dart
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Import Firebase Auth
-import 'package:flutter_bloc/flutter_bloc.dart'; // Import flutter_bloc
-import 'package:google_sign_in/google_sign_in.dart'; // <<< NEW IMPORT FOR GOOGLE SIGN IN
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:personal_finance_tracker/providers/currency_provider.dart';
+import 'package:personal_finance_tracker/HomeScreen.dart';
+import 'package:personal_finance_tracker/SettingsPage.dart';
 import 'package:personal_finance_tracker/firebase_options.dart';
 import 'package:personal_finance_tracker/SplashScreen.dart';
 import 'package:personal_finance_tracker/LoginScreen.dart';
-
-// Import your Auth Cubit
 import 'package:personal_finance_tracker/auth/auth_cubit.dart';
-import 'package:personal_finance_tracker/auth/auth_state.dart'; // Import AuthState to use in MyApp (optional but good practice)
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CurrencyProvider()),
+        BlocProvider<AuthCubit>(
+          create: (context) => AuthCubit(firebase_auth.FirebaseAuth.instance, GoogleSignIn())..checkAuthStatus(),
+        ),
+      ],
+      child: MyAppTheme(key: MyAppTheme.appKey), // ✅ Assign GlobalKey
+    ),
   );
-
-  runApp(const MyAppWrapper()); // Wrap MyApp with MyAppWrapper to provide the Cubit
 }
 
-// A new StatelessWidget to provide the AuthCubit
-class MyAppWrapper extends StatelessWidget {
-  const MyAppWrapper({super.key});
+// ✅ Theme-aware App
+class MyAppTheme extends StatefulWidget {
+  const MyAppTheme({super.key});
+
+  static final GlobalKey<_MyAppThemeState> appKey = GlobalKey<_MyAppThemeState>();
+
+  static void toggleTheme(bool isDark) {
+    appKey.currentState?.toggleTheme(isDark);
+  }
 
   @override
-  Widget build(BuildContext context) {
-
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: '168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com',
-      scopes: ['email','profile'],
-    );
-    // Provide the AuthCubit to the entire application.
-    // The AuthCubit requires instances of FirebaseAuth and GoogleSignIn.
-    return BlocProvider<AuthCubit>(
-      create: (context) => AuthCubit(
-        firebase_auth.FirebaseAuth.instance,
-        GoogleSignIn(), // <<< UPDATED: Pass GoogleSignIn instance here
-      )..checkAuthStatus(),
-      child: const MyApp(),
-    );
-  }
+  State<MyAppTheme> createState() => _MyAppThemeState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _MyAppThemeState extends State<MyAppTheme> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedTheme();
+  }
+
+  Future<void> _loadSavedTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDark = prefs.getBool('isDarkTheme') ?? false;
+    setState(() {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  void toggleTheme(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkTheme', isDark);
+    setState(() {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Personal Finance Tracker',
+      themeMode: _themeMode,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
       initialRoute: '/',
       routes: {
-        // We'll modify the SplashScreen to handle initial routing based on auth state
-        '/': (context) => const SplashScreen(),
+        '/xoxo': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
-        // You'll eventually add a '/home' route here for logged-in users
+        '/': (context) => HomeScreen(),
+        '/settings': (context) => SettingsPage(),
       },
       debugShowCheckedModeBanner: false,
     );
