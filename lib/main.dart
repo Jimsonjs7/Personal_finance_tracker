@@ -30,6 +30,11 @@ class MyAppWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      clientId: '168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com',
+      scopes: ['email','profile'],
+    );
     // Provide the AuthCubit to the entire application.
     // The AuthCubit requires instances of FirebaseAuth and GoogleSignIn.
     return BlocProvider<AuthCubit>(
