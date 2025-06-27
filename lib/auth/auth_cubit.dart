@@ -104,38 +104,39 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInWithGoogle() async {
     emit(AuthLoading()); // Emit loading state
     try {
-      // Begin the Google Sign In Process
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // The user canceled the sign-in flow
-        emit(AuthFailure('Google Sign In cancelled.'));
+        emit(const AuthFailure('Google Sign-In cancelled by user.'));
         return;
       }
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
 
-      // Create a new credential with the access token and ID token
-      final firebase_auth.AuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
+      // Check if tokens are null (common cause of crashes)
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        emit(const AuthFailure('Missing Google Auth tokens.'));
+        return;
+      }
+
+      final firebase_auth.AuthCredential credential =
+      firebase_auth.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google credential
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+      await _firebaseAuth.signInWithCredential(credential);
 
-      // If successful, emit AuthSuccess state with the authenticated user
       emit(AuthSuccess(userCredential.user!));
     } on firebase_auth.FirebaseAuthException catch (e) {
-      // Catch specific Firebase Authentication exceptions
-      String errorMessage = 'Google Sign In Failed: ${e.message}';
-      emit(AuthFailure(errorMessage));
+      emit(AuthFailure('FirebaseAuth Error: ${e.message}'));
     } catch (e) {
-      // Catch any other general exceptions
-      emit(AuthFailure('An unexpected error occurred during Google Sign In: ${e.toString()}'));
+      emit(AuthFailure('Google Sign-In failed: ${e.toString()}'));
     }
   }
+
 
   @override
   Future<void> close() {

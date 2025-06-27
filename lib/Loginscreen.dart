@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:personal_finance_tracker/auth/auth_cubit.dart';
 import 'package:personal_finance_tracker/auth/auth_state.dart';
-import 'package:personal_finance_tracker/RegisterScreen.dart'; // Add this import
+import 'package:personal_finance_tracker/Registerscreen.dart'; // Add this import
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
