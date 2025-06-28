@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:168353549537:android:dc322c3eb63e875acb3ba0",
+        "mobilesdk_app_id": "1:168353549537:android:1330190136a91e41cb3ba0",
         "android_client_info": {
-          "package_name": "com.group.personalfinancetracker.personal_finance_tracker"
+          "package_name": "com.example.personal_finance_tracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAGVbuB3KpNSAPIerQcasm52g0FK_fcdIo"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "168353549537-rn72ketd85cdoucao6pgk6jqguotuqsr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.group.personalfinancetracker.personalFinanceTracker"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:168353549537:android:dc322c3eb63e875acb3ba0",
+        "android_client_info": {
+          "package_name": "com.group.personalfinancetracker.personal_finance_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGVbuB3KpNSAPIerQcasm52g0FK_fcdIo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "168353549537-4j513l6srnabjbj539n6vaqn17quot0b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "168353549537-rn72ketd85cdoucao6pgk6jqguotuqsr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.group.personalfinancetracker.personalFinanceTracker"
+              }
+            }
+          ]
         }
       }
     }

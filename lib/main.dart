@@ -97,9 +97,9 @@ class _MyAppThemeState extends State<MyAppTheme> {
       ),
       initialRoute: '/',
       routes: {
-        '/xoxo': (context) => const SplashScreen(),
+        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
-        '/': (context) => HomeScreen(),
+        '/home': (context) => HomeScreen(),
         '/settings': (context) => SettingsPage(),
       },
       debugShowCheckedModeBanner: false,
