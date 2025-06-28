@@ -5,14 +5,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:personal_finance_tracker/providers/currency_provider.dart';
-import 'package:personal_finance_tracker/HomeScreen.dart';
-import 'package:personal_finance_tracker/SettingsPage.dart';
-import 'package:personal_finance_tracker/firebase_options.dart';
-import 'package:personal_finance_tracker/SplashScreen.dart';
-import 'package:personal_finance_tracker/LoginScreen.dart';
-import 'package:personal_finance_tracker/auth/auth_cubit.dart';
+import 'generated/l10n.dart'; // ✅ Your generated localizations file
+import 'providers/languague_support.dart';
+import 'providers/currency_provider.dart';
+import 'HomeScreen.dart';
+import 'SettingsPage.dart';
+import 'SplashScreen.dart';
+import 'LoginScreen.dart';
+import 'auth/auth_cubit.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,16 +24,19 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CurrencyProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(firebase_auth.FirebaseAuth.instance, GoogleSignIn())..checkAuthStatus(),
+          create: (context) => AuthCubit(
+            firebase_auth.FirebaseAuth.instance,
+            GoogleSignIn(),
+          )..checkAuthStatus(),
         ),
       ],
-      child: MyAppTheme(key: MyAppTheme.appKey), // ✅ Assign GlobalKey
+      child: MyAppTheme(key: MyAppTheme.appKey),
     ),
   );
 }
 
-// ✅ Theme-aware App
 class MyAppTheme extends StatefulWidget {
   const MyAppTheme({super.key});
 
@@ -71,6 +77,8 @@ class _MyAppThemeState extends State<MyAppTheme> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return MaterialApp(
       title: 'Personal Finance Tracker',
       themeMode: _themeMode,
@@ -78,23 +86,32 @@ class _MyAppThemeState extends State<MyAppTheme> {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
         ),
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark),
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.dark,
+        ),
         scaffoldBackgroundColor: Colors.black,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           elevation: 0,
         ),
       ),
+
+      /// ✅ Localization setup
+      locale: languageProvider.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+
       initialRoute: '/',
       routes: {
         '/xoxo': (context) => const SplashScreen(),
@@ -102,6 +119,7 @@ class _MyAppThemeState extends State<MyAppTheme> {
         '/': (context) => HomeScreen(),
         '/settings': (context) => SettingsPage(),
       },
+
       debugShowCheckedModeBanner: false,
     );
   }

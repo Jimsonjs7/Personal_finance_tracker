@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:personal_finance_tracker/SettingsPage.dart';
+import 'package:personal_finance_tracker/generated/l10n.dart';
 
 final ValueNotifier<String> _viewType = ValueNotifier("Monthly");
 
@@ -46,21 +47,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final s = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
-        title: Text('Overview', style: GoogleFonts.poppins(color: theme.textTheme.titleLarge?.color)),
+        title: Text(s.overview, style: GoogleFonts.poppins(color: theme.textTheme.titleLarge?.color)),
         elevation: 1,
         actions: [
           IconButton(icon: Icon(Icons.visibility, color: theme.iconTheme.color), onPressed: () {}),
           IconButton(
             icon: Icon(Icons.settings, color: theme.iconTheme.color),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
             },
           )
         ],
@@ -68,17 +68,17 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.all(16),
         children: [
-          _buildBalanceCard(context),
+          _buildBalanceCard(context, s),
           SizedBox(height: 16),
-          _buildAccountsCard(context),
+          _buildAccountsCard(context, s),
           SizedBox(height: 16),
-          _buildCashFlowCard(context),
+          _buildCashFlowCard(context, s),
           SizedBox(height: 16),
-          _buildCategoriesCard(context),
+          _buildCategoriesCard(context, s),
           SizedBox(height: 16),
-          _buildTransactionsCard(context),
+          _buildTransactionsCard(context, s),
           SizedBox(height: 16),
-          _buildBudgetsCard(context),
+          _buildBudgetsCard(context, s),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -86,42 +86,41 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: theme.bottomAppBarColor,
         selectedItemColor: theme.colorScheme.primary,
         unselectedItemColor: theme.unselectedWidgetColor,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: "Categories"),
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: s.overview),
+          BottomNavigationBarItem(icon: Icon(Icons.category), label: s.categories),
           BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: "Analytics"),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Transactions"),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: s.transactions),
         ],
       ),
     );
   }
 
-  Widget _buildBalanceCard(BuildContext context) {
+  Widget _buildBalanceCard(BuildContext context, AppLocalizations s) {
     final theme = Theme.of(context);
     return _themedCard(
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(context, "Total Balance", trailing: Icon(Icons.filter_list, color: theme.iconTheme.color)),
+          _sectionTitle(context, s.totalBalance, trailing: Icon(Icons.filter_list, color: theme.iconTheme.color)),
           SizedBox(height: 12),
-          Text("₹ ${balance.toStringAsFixed(0)}",
-              style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w600, color: theme.textTheme.headlineMedium?.color)),
+          Text("₹ ${balance.toStringAsFixed(0)}", style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w600)),
           SizedBox(height: 4),
-          Text("as of June 2025", style: theme.textTheme.bodySmall),
+          Text(s.asOf("June 2025"), style: theme.textTheme.bodySmall),
         ],
       ),
     );
   }
 
-  Widget _buildAccountsCard(BuildContext context) {
+  Widget _buildAccountsCard(BuildContext context, AppLocalizations s) {
     final theme = Theme.of(context);
     return _themedCard(
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(context, "Accounts", trailing: Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color)),
+          _sectionTitle(context, s.accounts, trailing: Icon(Icons.arrow_forward_ios, size: 16)),
           SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -135,27 +134,27 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCashFlowCard(BuildContext context) {
+  Widget _buildCashFlowCard(BuildContext context, AppLocalizations s) {
     final theme = Theme.of(context);
     return _themedCard(
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(context, "Cash Flow", subtitle: "June 2025", trailing: Icon(Icons.more_vert, color: theme.iconTheme.color)),
+          _sectionTitle(context, s.cashFlow, subtitle: "June 2025", trailing: Icon(Icons.more_vert)),
           SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _flowItem(context, "Income", income, Icons.arrow_upward, Colors.green),
-              _flowItem(context, "Expense", expense, Icons.arrow_downward, Colors.red),
+              _flowItem(context, s.income, income, Icons.arrow_upward, Colors.green),
+              _flowItem(context, s.expense, expense, Icons.arrow_downward, Colors.red),
             ],
           ),
           Divider(height: 28),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total:", style: theme.textTheme.bodyMedium),
+              Text("${s.total}:", style: theme.textTheme.bodyMedium),
               Text("₹ ${(income - expense).toStringAsFixed(0)}", style: theme.textTheme.titleMedium),
             ],
           )
@@ -164,14 +163,14 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoriesCard(BuildContext context) {
+  Widget _buildCategoriesCard(BuildContext context, AppLocalizations s) {
     final theme = Theme.of(context);
     return _themedCard(
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(context, "Categories", subtitle: "June 2025", trailing: Icon(Icons.more_vert, color: theme.iconTheme.color)),
+          _sectionTitle(context, s.categories, subtitle: "June 2025", trailing: Icon(Icons.more_vert)),
           SizedBox(height: 12),
           Column(
             children: categories.map((c) => ListTile(
@@ -188,7 +187,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionsCard(BuildContext context) {
+  Widget _buildTransactionsCard(BuildContext context, AppLocalizations s) {
     final theme = Theme.of(context);
     return _themedCard(
       context: context,
@@ -197,17 +196,17 @@ class HomeScreen extends StatelessWidget {
         children: [
           _sectionTitle(
             context,
-            "Transactions",
+            s.transactions,
             trailing: ValueListenableBuilder(
               valueListenable: _viewType,
               builder: (context, String view, _) => ToggleButtons(
                 borderRadius: BorderRadius.circular(12),
                 constraints: BoxConstraints(minWidth: 80, minHeight: 30),
-                isSelected: ["Daily", "Monthly"].map((e) => e == view).toList(),
-                onPressed: (index) => _viewType.value = ["Daily", "Monthly"][index],
-                children: const [
-                  Text("Daily", style: TextStyle(fontSize: 12)),
-                  Text("Monthly", style: TextStyle(fontSize: 12)),
+                isSelected: [s.daily, s.monthly].map((e) => e == view).toList(),
+                onPressed: (index) => _viewType.value = [s.daily, s.monthly][index],
+                children: [
+                  Text(s.daily, style: TextStyle(fontSize: 12)),
+                  Text(s.monthly, style: TextStyle(fontSize: 12)),
                 ],
               ),
             ),
@@ -220,7 +219,7 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: (tx['color'] as Color).withOpacity(0.2),
                 child: Icon(tx['icon'], color: tx['color']),
               ),
-              title: Text(tx['category'], style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500)),
+              title: Text(tx['category'], style: theme.textTheme.titleSmall),
               subtitle: Text(tx['date'], style: theme.textTheme.bodySmall),
               trailing: Text(
                 "${tx['type'] == "Income" ? "+" : "-"}₹${tx['amount']}",
@@ -236,15 +235,15 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBudgetsCard(BuildContext context) {
+  Widget _buildBudgetsCard(BuildContext context, AppLocalizations s) {
     return _themedCard(
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(context, "Budgets", trailing: Icon(Icons.arrow_forward_ios, size: 16)),
+          _sectionTitle(context, s.budgets, trailing: Icon(Icons.arrow_forward_ios, size: 16)),
           SizedBox(height: 16),
-          Center(child: Text("No active budgets", style: Theme.of(context).textTheme.bodySmall)),
+          Center(child: Text(s.noBudgets, style: Theme.of(context).textTheme.bodySmall)),
           SizedBox(height: 8),
         ],
       ),
