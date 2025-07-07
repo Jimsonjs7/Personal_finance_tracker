@@ -8,7 +8,7 @@
 PRODUCT_NAME = personal_finance_tracker
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.group.personalfinancetracker.personalFinanceTracker
+PRODUCT_BUNDLE_IDENTIFIER = com.example.personalFinanceTracker
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.group.personalfinancetracker. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
